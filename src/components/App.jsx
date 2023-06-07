@@ -4,13 +4,13 @@ import Section from './Section/Section';
 import Form from './Form/Form';
 import Filter from './Filter/Filter';
 import ContactList from './ContactList/ContactList';
+import { useSelector } from 'react-redux';
+import { getFilter } from 'redux/selectors';
 
 export function App() {
   const [contacts, setContacts] = useState(
     () => JSON.parse(localStorage.getItem('contacts')) ?? []
   );
-
-  const [filter, setFilter] = useState('');
 
   useEffect(() => {
     localStorage.setItem('contacts', JSON.stringify(contacts));
@@ -41,11 +41,9 @@ export function App() {
     setContacts(contacts.filter(contact => contact.id !== contactId));
   };
 
-  const changeFilter = e => {
-    setFilter(e.target.value);
-  };
-
+  const filter = useSelector(getFilter);
   const normalizedFilter = filter.toLocaleLowerCase();
+
   const visibleContacts = contacts.filter(contact =>
     contact.name.toLowerCase().includes(normalizedFilter)
   );
@@ -57,7 +55,8 @@ export function App() {
       </Section>
 
       <Section title="Contacts">
-        <Filter value={filter} onChange={changeFilter} />
+        <Filter />
+
         {visibleContacts && (
           <ContactList
             contacts={visibleContacts}
