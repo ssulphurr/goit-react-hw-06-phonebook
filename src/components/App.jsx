@@ -1,45 +1,17 @@
-import { useEffect, useState } from 'react';
-import { nanoid } from 'nanoid';
+import { useEffect } from 'react';
 import Section from './Section/Section';
 import Form from './Form/Form';
 import Filter from './Filter/Filter';
 import ContactList from './ContactList/ContactList';
 import { useSelector } from 'react-redux';
-import { getFilter } from 'redux/selectors';
+import { getContacts, getFilter } from 'redux/selectors';
 
 export function App() {
-  const [contacts, setContacts] = useState(
-    () => JSON.parse(localStorage.getItem('contacts')) ?? []
-  );
+  const contacts = useSelector(getContacts);
 
   useEffect(() => {
     localStorage.setItem('contacts', JSON.stringify(contacts));
   }, [contacts]);
-
-  const addContact = ({ name, number }) => {
-    const match = contacts.find(
-      contact =>
-        contact.name.toLowerCase() === name.toLocaleLowerCase() ||
-        contact.number === number
-    );
-
-    if (match) {
-      alert(`${name} or ${number} is already in contacts`);
-      return;
-    } else {
-      const contact = {
-        id: nanoid(),
-        name,
-        number,
-      };
-
-      setContacts([...contacts, contact]);
-    }
-  };
-
-  const deleteContact = contactId => {
-    setContacts(contacts.filter(contact => contact.id !== contactId));
-  };
 
   const filter = useSelector(getFilter);
   const normalizedFilter = filter.toLocaleLowerCase();
@@ -51,18 +23,13 @@ export function App() {
   return (
     <>
       <Section title="Phonebook">
-        <Form onSubmit={addContact} />
+        <Form />
       </Section>
 
       <Section title="Contacts">
         <Filter />
 
-        {visibleContacts && (
-          <ContactList
-            contacts={visibleContacts}
-            onDeleteContact={deleteContact}
-          />
-        )}
+        {visibleContacts && <ContactList contacts={visibleContacts} />}
       </Section>
     </>
   );
